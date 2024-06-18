@@ -1,23 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import ListingsContainer from "./ListingsContainer";
+import YourCart from "./YourCart";
+import Header from "./Header";
 
 function App() {
+  const [listings, setListings] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+
+  function handleAddToCart(selectedListing) {
+    setCartItems([...cartItems, selectedListing])
+    const filteredListings = listings.filter(listing => listing.id !== selectedListing.id
+    );
+    setListings(filteredListings)
+  }
+
+  useEffect(() => {
+    fetch("https://fakestoreapi.com/products")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network Response was not OK");
+        }
+        return response.json();
+      })
+      .then((listingdata) => setListings(listingdata));
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Header />
+        <h2 className="text-3xl font-bold mb-8">Your Cart: </h2>
+      <YourCart cartItems={cartItems} />
+      <ListingsContainer
+        listings={listings}
+        setListings={setListings}
+        onAddToCart={handleAddToCart}
+      />
     </div>
   );
 }
